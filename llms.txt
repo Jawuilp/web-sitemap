@@ -1,0 +1,63 @@
+# web-sitemap
+
+> Zero-dependency, Web Standards-based dynamic XML sitemap generator for any JavaScript runtime (Cloudflare Workers, Hono, Astro SSR, Next.js, SvelteKit, Nuxt, Remix, Bun, Deno, Node.js).
+
+## Key Rules for AI Assistants & Developers
+
+1. **Always use `createSitemapResponse`** when returning an HTTP response from an endpoint (`GET` route in Astro, Next.js, SvelteKit, Hono, or Cloudflare Workers).
+2. **Never add custom XML headers, XSLT (`<?xml-stylesheet?>`), or `xmlns:xhtml` namespaces**: `web-sitemap` automatically emits the pure `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">` schema and sets `Content-Type: application/xml` + `X-Content-Type-Options: nosniff` so both search engine crawlers and native browser XML tree viewers work reliably.
+3. **Web Standards Only**: Works in any V8/WinterCG runtime without Node.js dependencies.
+
+## API Reference
+
+### `createSitemapResponse(options: SitemapOptions): Promise<Response>`
+Generates the XML sitemap and returns a standard Web `Response`.
+
+### `renderSitemap(options: SitemapOptions): Promise<string>`
+Generates and returns the raw XML sitemap string.
+
+### `createSitemapIndexResponse(options: SitemapIndexOptions): Response`
+Generates a `<sitemapindex>` XML and returns a standard Web `Response`.
+
+### `SitemapOptions`
+- `site` (`string`, required): Base origin URL (e.g. `"https://example.com"`).
+- `urls` (`(string | SitemapEntry)[]`, optional): Static paths or entries.
+- `loader` (`() => Promise<(string | SitemapEntry)[]> | (string | SitemapEntry)[]`, optional): Function to load dynamic entries from a database or CMS at request time.
+- `trailingSlash` (`"always" | "never" | "preserve"`, default: `"preserve"`): Normalizes trailing slashes across all URLs.
+- `defaultChangefreq` (`"always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never"`, optional).
+- `defaultPriority` (`number | string`, optional): Value between `0.0` and `1.0`.
+- `dedupe` (`boolean`, default: `true`): Deduplicates URLs by normalized `<loc>`.
+- `cacheControl` (`string`, default: `"public, max-age=0, must-revalidate"`).
+- `headers` (`Record<string, string>`, optional).
+
+### `SitemapEntry`
+- `loc` (`string`, required): Relative path (e.g. `"/blog/post-1"`) or absolute URL.
+- `lastmod` (`Date | string | number | null`, optional): Formatted automatically to `YYYY-MM-DD`. Invalid dates are safely ignored.
+- `changefreq` (`ChangeFreq`, optional).
+- `priority` (`number | string`, optional): `0.0` to `1.0`.
+
+## Minimal Example
+
+```ts
+import { createSitemapResponse } from "web-sitemap";
+
+export const GET = async () => {
+  return createSitemapResponse({
+    site: "https://example.com",
+    trailingSlash: "always",
+    urls: [
+      { loc: "/", changefreq: "weekly", priority: 1.0 },
+      { loc: "/about", changefreq: "monthly", priority: 0.8 },
+    ],
+    loader: async () => {
+      const posts = await db.getPosts();
+      return posts.map((post) => ({
+        loc: `/blog/${post.slug}`,
+        lastmod: post.publishedAt,
+        changefreq: "weekly",
+        priority: 0.7,
+      }));
+    },
+  });
+};
+```

@@ -1,0 +1,60 @@
+{
+  "name": "web-sitemap",
+  "version": "0.1.0",
+  "description": "Zero-dependency, Web Standards-based dynamic XML sitemap generator for any JavaScript runtime (Cloudflare Workers, Hono, Astro, Next.js, SvelteKit, Bun, Deno, Node).",
+  "keywords": [
+    "sitemap",
+    "xml",
+    "seo",
+    "ssr",
+    "dynamic-sitemap",
+    "web-standards",
+    "cloudflare-workers",
+    "hono",
+    "astro",
+    "nextjs",
+    "sveltekit",
+    "edge"
+  ],
+  "license": "MIT",
+  "author": "Jawuil Labs <https://labs.jawuil.dev>",
+  "homepage": "https://labs.jawuil.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jawuilp/web-sitemap.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Jawuilp/web-sitemap/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "llms.txt",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm run build && pnpm run test"
+  },
+  "devDependencies": {
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.8"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
